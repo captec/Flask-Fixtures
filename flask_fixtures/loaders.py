@@ -57,7 +57,15 @@ class JSONLoader(FixtureLoader):
 
     def load(self, filename):
         def _datetime_parser(dct):
+            # this function avoid the attempt to pass the value as datetime
+            # this attempts to pass as datetime cause conflict when a field type JSON
+            # and contain a field with a date.
             for key, value in list(dct.items()):
+                if key.endswith("__ignore_dt_parse"):
+                    dct.pop(key)
+                    key = key.split("__ignore_dt_parse")[0]
+                    dct[key] = value
+                    continue
                 try:
                     dct[key] = dtparse(value)
                 except Exception:
